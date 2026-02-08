@@ -3,7 +3,7 @@ from fastapi import FastAPI
 
 from app.core.db import init_db
 from app.core.config import settings
-from app.api.endpoints import transactions
+from app.api.endpoints import transactions, chat
 
 #生命周期管理
 @asynccontextmanager
@@ -18,6 +18,7 @@ app = FastAPI(
     lifespan=lifespan
 )
 app.include_router(transactions.router, prefix="/api/v1/transactions", tags=["Transactions"])
+app.include_router(chat.router, prefix="/api/v1/chat", tags=["Chat"])
 @app.get("/")
 async def root():
     return {
