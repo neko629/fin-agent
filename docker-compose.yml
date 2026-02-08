@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      # 关键点：容器内访问宿主机的 Ollama
+      # 在 Linux/Windows 上，host.docker.internal 指向宿主机
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - DATABASE_URL=sqlite+aiosqlite:///./data/finance.db
+    volumes:
+      - ./data:/app/data  # 挂载数据目录，持久化 SQLite
+
+  frontend:
+    # 前端复用后端的镜像
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      - API_BASE_URL=http://backend:8000/api/v1 # 前端访问后端的容器名
+    command: ["streamlit", "run", "ui.py"]
+    volumes:
+      - ./ui.py:/app/streamlit_ui.py # 挂载前端代码
